@@ -3,7 +3,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { MenuItem, Category } from "@/lib/types";
 import FeedCard from "./FeedCard";
-import CategoryPills from "@/components/ui/CategoryPills";
 
 interface VerticalFeedProps {
   items: MenuItem[];
@@ -34,7 +33,6 @@ export default function VerticalFeed({
   const handleCategoryChange = (categoryId: string | null) => {
     setActiveCategory(categoryId);
     setActiveIndex(0);
-    // Scroll to top when category changes
     if (containerRef.current) {
       containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -49,21 +47,42 @@ export default function VerticalFeed({
 
   return (
     <div className="relative w-full h-dvh bg-black overflow-hidden">
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-30 safe-top">
-        <div className="px-4 pt-3 pb-1">
-          <h1 className="text-white font-bold text-lg tracking-tight drop-shadow-lg">
+      {/* Header — single line: name + scrollable pills */}
+      <div className="absolute top-0 left-0 right-0 z-30 safe-top bg-gradient-to-b from-black/70 via-black/30 to-transparent pb-6">
+        <div className="flex items-center gap-3 px-4 pt-3">
+          <h1 className="text-white font-bold text-sm tracking-tight drop-shadow-lg shrink-0 uppercase">
             {establishmentName}
           </h1>
+          <div className="w-px h-4 bg-white/20 shrink-0" />
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pr-4">
+            <button
+              onClick={() => handleCategoryChange(null)}
+              className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200 ${
+                activeCategory === null
+                  ? "bg-orange-500 text-white"
+                  : "bg-white/10 text-white/60"
+              }`}
+            >
+              Todos
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryChange(cat.id)}
+                className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200 ${
+                  activeCategory === cat.id
+                    ? "bg-orange-500 text-white"
+                    : "bg-white/10 text-white/60"
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
         </div>
-        <CategoryPills
-          categories={categories}
-          activeId={activeCategory}
-          onSelect={handleCategoryChange}
-        />
       </div>
 
-      {/* Feed container */}
+      {/* Feed */}
       <div
         ref={containerRef}
         className="w-full h-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide"
@@ -76,21 +95,10 @@ export default function VerticalFeed({
 
         {filteredItems.length === 0 && (
           <div className="w-full h-dvh flex items-center justify-center">
-            <p className="text-white/50 text-lg">
-              Nenhum item nesta categoria
-            </p>
+            <p className="text-white/40 text-base">Nenhum item nesta categoria</p>
           </div>
         )}
       </div>
-
-      {/* Scroll indicator */}
-      {activeIndex === 0 && filteredItems.length > 1 && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 animate-bounce">
-          <div className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-1.5">
-            <div className="w-1.5 h-2.5 rounded-full bg-white/60 animate-pulse" />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
