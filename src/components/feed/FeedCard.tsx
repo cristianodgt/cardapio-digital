@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   motion,
   AnimatePresence,
@@ -18,15 +18,53 @@ interface FeedCardProps {
   isActive: boolean;
 }
 
+/* Stagger children variants — GPU only (transform + opacity) */
+const staggerContainer = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.08, delayChildren: 0.15 },
+  },
+};
+
+const fadeSlideUp = {
+  hidden: { opacity: 0, y: 18 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, ease: [0.25, 0.1, 0.25, 1] },
+  },
+};
+
+const fadeSlideRight = {
+  hidden: { opacity: 0, x: -14 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] },
+  },
+};
+
 export default function FeedCard({ item, isActive }: FeedCardProps) {
   const gallery = item.gallery || [item.media_url];
   const [mediaIndex, setMediaIndex] = useState(0);
   const [qty, setQty] = useState(0);
   const [justAdded, setJustAdded] = useState(false);
   const [imgLoaded, setImgLoaded] = useState<Record<number, boolean>>({});
+  const [swipeDir, setSwipeDir] = useState<"left" | "right">("left");
 
   const dragX = useMotionValue(0);
   const dragOpacity = useTransform(dragX, [-120, 0, 120], [0.5, 1, 0.5]);
+
+  /* Shimmer pulse for CTA button */
+  const [shimmer, setShimmer] = useState(false);
+  useEffect(() => {
+    if (!isActive || qty > 0) return;
+    const id = setInterval(() => {
+      setShimmer(true);
+      setTimeout(() => setShimmer(false), 600);
+    }, 4000);
+    return () => clearInterval(id);
+  }, [isActive, qty]);
 
   const handleDragEnd = (
     _: MouseEvent | TouchEvent | PointerEvent,
@@ -39,8 +77,10 @@ export default function FeedCard({ item, isActive }: FeedCardProps) {
 
     if (shouldSwipe) {
       if (info.offset.x < 0 && mediaIndex < gallery.length - 1) {
+        setSwipeDir("left");
         setMediaIndex((i) => i + 1);
       } else if (info.offset.x > 0 && mediaIndex > 0) {
+        setSwipeDir("right");
         setMediaIndex((i) => i - 1);
       }
     }
@@ -63,18 +103,21 @@ export default function FeedCard({ item, isActive }: FeedCardProps) {
     }
   };
 
+  /* Slide direction for media transitions */
+  const slideX = swipeDir === "left" ? 60 : -60;
+
   return (
     <div className="relative w-full h-full snap-start snap-always overflow-hidden bg-black">
-      {/* ── IMAGE ── */}
+      {/* ── IMAGE with parallax slide ── */}
       <div className="absolute inset-0">
         <div className="relative w-full h-full max-w-[480px] mx-auto">
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={mediaIndex}
-              initial={{ opacity: 0, scale: 1.02 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              initial={{ opacity: 0, x: slideX, scale: 1.04 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -slideX, scale: 0.96 }}
+              transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
               className="absolute inset-0"
             >
               <Image
@@ -154,15 +197,25 @@ export default function FeedCard({ item, isActive }: FeedCardProps) {
         )}
       </AnimatePresence>
 
-      {/* ── GRADIENT — only bottom, subtle ── */}
+      {/* ── GRADIENT ── */}
       <div className="absolute bottom-0 left-0 right-0 h-[55%] bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none" />
       <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
 
-      {/* ── BOTTOM CONTENT ── */}
+      {/* ── BOTTOM CONTENT — staggered entry ── */}
       <div className="absolute bottom-0 left-0 right-0 z-10 safe-bottom">
-        <div className="max-w-[480px] mx-auto" style={{ padding: "0 20px 28px" }}>
+        <motion.div
+          className="max-w-[480px] mx-auto"
+          style={{ padding: "0 20px 28px" }}
+          variants={staggerContainer}
+          initial="hidden"
+          animate={isActive ? "visible" : "hidden"}
+        >
           {/* Badge + Share row */}
-          <div className="flex items-center justify-between" style={{ marginBottom: 8 }}>
+          <motion.div
+            variants={fadeSlideRight}
+            className="flex items-center justify-between"
+            style={{ marginBottom: 8 }}
+          >
             <div>
               {item.is_featured && (
                 <span
@@ -180,27 +233,32 @@ export default function FeedCard({ item, isActive }: FeedCardProps) {
             >
               <Share2 className="w-[16px] h-[16px] text-white/60" />
             </motion.button>
-          </div>
+          </motion.div>
 
-          {/* Name — largest text, primary hierarchy */}
-          <h2
+          {/* Name */}
+          <motion.h2
+            variants={fadeSlideUp}
             className="text-white text-[22px] font-bold leading-[1.15] tracking-[-0.02em] line-clamp-2"
             style={{ marginBottom: 6 }}
           >
             {item.name}
-          </h2>
+          </motion.h2>
 
-          {/* Description — readable but secondary */}
-          <p
+          {/* Description */}
+          <motion.p
+            variants={fadeSlideUp}
             className="text-white/55 text-[13px] leading-[1.55] line-clamp-2"
             style={{ marginBottom: 16 }}
           >
             {item.description}
-          </p>
+          </motion.p>
 
           {/* Price + Hint + Cart row */}
-          <div className="flex items-center justify-between">
-            {/* Price — clear hierarchy */}
+          <motion.div
+            variants={fadeSlideUp}
+            className="flex items-center justify-between"
+          >
+            {/* Price */}
             <div className="flex items-baseline gap-1 shrink-0">
               <span className="text-white/50 text-[14px] font-medium">
                 R$
@@ -210,7 +268,7 @@ export default function FeedCard({ item, isActive }: FeedCardProps) {
               </span>
             </div>
 
-            {/* Scroll hint — inline between price and button */}
+            {/* Scroll hint */}
             <motion.div
               animate={{ y: [0, 2, 0] }}
               transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
@@ -222,7 +280,7 @@ export default function FeedCard({ item, isActive }: FeedCardProps) {
               <ChevronDown className="w-2.5 h-2.5 text-white/20" />
             </motion.div>
 
-            {/* Add to cart — prominent CTA */}
+            {/* Add to cart */}
             <div className="flex items-center gap-2 shrink-0">
               <AnimatePresence>
                 {qty > 0 && (
@@ -263,26 +321,33 @@ export default function FeedCard({ item, isActive }: FeedCardProps) {
                 onClick={handleAdd}
                 style={{ padding: qty === 0 ? "0 24px" : 0 }}
                 className={cn(
-                  "h-12 rounded-full flex items-center gap-2",
+                  "h-12 rounded-full flex items-center gap-2 relative overflow-hidden",
                   "bg-orange-500 shadow-lg shadow-orange-500/25",
                   "active:brightness-110 transition-all",
                   qty === 0 ? "" : "w-12 justify-center"
                 )}
               >
+                {/* Shimmer overlay */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                  initial={{ x: "-100%" }}
+                  animate={shimmer ? { x: "100%" } : { x: "-100%" }}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                />
                 {qty === 0 ? (
                   <>
-                    <ShoppingBag className="w-[18px] h-[18px] text-white" />
-                    <span className="text-white text-[14px] font-semibold">
+                    <ShoppingBag className="w-[18px] h-[18px] text-white relative z-10" />
+                    <span className="text-white text-[14px] font-semibold relative z-10">
                       Adicionar
                     </span>
                   </>
                 ) : (
-                  <Plus className="w-5 h-5 text-white" strokeWidth={2.5} />
+                  <Plus className="w-5 h-5 text-white relative z-10" strokeWidth={2.5} />
                 )}
               </motion.button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );
