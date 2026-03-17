@@ -125,7 +125,7 @@ export default function VerticalFeed({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ delay: 2, duration: 0.5 }}
-            className="absolute bottom-6 left-0 right-0 z-40 flex justify-center pointer-events-none safe-bottom"
+            className="absolute bottom-[240px] left-0 right-0 z-40 flex justify-center pointer-events-none"
           >
             <motion.div
               animate={{ y: [0, 6, 0] }}
