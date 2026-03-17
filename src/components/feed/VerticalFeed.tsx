@@ -49,7 +49,7 @@ export default function VerticalFeed({
     <div className="relative w-full h-dvh bg-black overflow-hidden">
       {/* Header — single line: name + scrollable pills */}
       <div className="absolute top-0 left-0 right-0 z-30 safe-top bg-gradient-to-b from-black/70 via-black/30 to-transparent pb-6">
-        <div className="flex items-center gap-3 px-4 pt-3">
+        <div className="flex items-center gap-3 px-4 pt-3 max-w-[480px] mx-auto">
           <h1 className="text-white font-bold text-sm tracking-tight drop-shadow-lg shrink-0 uppercase">
             {establishmentName}
           </h1>
