@@ -108,24 +108,48 @@ export default function FeedCard({ item, isActive }: FeedCardProps) {
         </div>
       </div>
 
-      {/* ── MEDIA INDICATORS ── */}
+      {/* ── MEDIA DOTS — minimal ── */}
       {gallery.length > 1 && (
-        <div className="absolute top-16 z-30 left-0 right-0 px-6 safe-top">
-          <div className="flex gap-[3px] max-w-[480px] mx-auto">
+        <div className="absolute bottom-[210px] z-30 left-0 right-0 flex justify-center pointer-events-none">
+          <div className="flex gap-[6px] items-center">
             {gallery.map((_, i) => (
-              <div
+              <motion.div
                 key={i}
-                className={cn(
-                  "h-[3px] rounded-full transition-all duration-300",
-                  i === mediaIndex
-                    ? "flex-[2.5] bg-white shadow-sm shadow-white/30"
-                    : "flex-1 bg-white/30"
-                )}
+                animate={{
+                  width: i === mediaIndex ? 20 : 6,
+                  opacity: i === mediaIndex ? 1 : 0.4,
+                }}
+                transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                className="h-[6px] rounded-full bg-white"
               />
             ))}
           </div>
         </div>
       )}
+
+      {/* ── SWIPE HINT — temporary, first photo only ── */}
+      <AnimatePresence>
+        {gallery.length > 1 && mediaIndex === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ delay: 1.5, duration: 0.6 }}
+            className="absolute top-1/2 -translate-y-1/2 right-5 z-30 pointer-events-none"
+          >
+            <motion.div
+              animate={{ x: [0, -12, 0] }}
+              transition={{ repeat: 3, duration: 1, ease: "easeInOut", delay: 1.8 }}
+              className="flex items-center gap-1 bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5"
+            >
+              <span className="text-white/70 text-[11px] font-medium">deslize</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/70">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── GRADIENT — only bottom, subtle ── */}
       <div className="absolute bottom-0 left-0 right-0 h-[55%] bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none" />
