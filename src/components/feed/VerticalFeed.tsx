@@ -125,17 +125,17 @@ export default function VerticalFeed({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ delay: 2, duration: 0.5 }}
-            className="absolute bottom-[240px] left-0 right-0 z-40 flex justify-center pointer-events-none"
+            className="absolute bottom-7 left-5 z-40 pointer-events-none safe-bottom"
           >
             <motion.div
-              animate={{ y: [0, 6, 0] }}
+              animate={{ y: [0, 4, 0] }}
               transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-              className="flex flex-col items-center gap-1"
+              className="flex items-center gap-1"
             >
-              <span className="text-white/40 text-[10px] font-medium tracking-wide uppercase">
-                Deslize para ver mais
+              <ChevronDown className="w-3 h-3 text-white/30" />
+              <span className="text-white/30 text-[9px] font-medium tracking-wide uppercase">
+                mais itens
               </span>
-              <ChevronDown className="w-4 h-4 text-white/40" />
             </motion.div>
           </motion.div>
         )}
