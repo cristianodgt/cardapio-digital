@@ -210,13 +210,16 @@ export default function FeedCard({ item, isActive }: FeedCardProps) {
               </span>
             </div>
 
-            {/* Scroll hint — centered between price and button */}
+            {/* Scroll hint — inline between price and button */}
             <motion.div
-              animate={{ y: [0, 3, 0] }}
+              animate={{ y: [0, 2, 0] }}
               transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-              className="flex flex-col items-center"
+              className="flex items-center gap-0.5 mx-2"
             >
-              <ChevronDown className="w-3 h-3 text-white/25" />
+              <span className="text-white/20 text-[7px] font-medium tracking-wider uppercase whitespace-nowrap">
+                mais
+              </span>
+              <ChevronDown className="w-2.5 h-2.5 text-white/20" />
             </motion.div>
 
             {/* Add to cart — prominent CTA */}
