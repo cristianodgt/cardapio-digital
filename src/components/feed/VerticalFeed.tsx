@@ -117,29 +117,7 @@ export default function VerticalFeed({
         )}
       </div>
 
-      {/* ── SCROLL HINT ── */}
-      <AnimatePresence>
-        {showScrollHint && filteredItems.length > 1 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ delay: 2, duration: 0.5 }}
-            className="absolute bottom-2 left-0 right-0 z-40 flex justify-center pointer-events-none safe-bottom"
-          >
-            <motion.div
-              animate={{ y: [0, 3, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-              className="flex items-center gap-0.5"
-            >
-              <span className="text-white/25 text-[8px] font-medium tracking-wider uppercase">
-                mais itens
-              </span>
-              <ChevronDown className="w-2.5 h-2.5 text-white/25" />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Scroll hint removed — now rendered inside FeedCard price row */}
     </div>
   );
 }

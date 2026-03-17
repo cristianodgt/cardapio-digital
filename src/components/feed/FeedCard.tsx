@@ -9,7 +9,7 @@ import {
   PanInfo,
 } from "framer-motion";
 import Image from "next/image";
-import { Plus, Minus, ShoppingBag, Share2 } from "lucide-react";
+import { Plus, Minus, ShoppingBag, Share2, ChevronDown } from "lucide-react";
 import { MenuItem } from "@/lib/types";
 import { cn, formatPrice } from "@/lib/utils";
 
@@ -198,10 +198,10 @@ export default function FeedCard({ item, isActive }: FeedCardProps) {
             {item.description}
           </p>
 
-          {/* Price + Cart row */}
+          {/* Price + Hint + Cart row */}
           <div className="flex items-center justify-between">
             {/* Price — clear hierarchy */}
-            <div className="flex items-baseline gap-1">
+            <div className="flex items-baseline gap-1 shrink-0">
               <span className="text-white/50 text-[14px] font-medium">
                 R$
               </span>
@@ -210,8 +210,17 @@ export default function FeedCard({ item, isActive }: FeedCardProps) {
               </span>
             </div>
 
+            {/* Scroll hint — centered between price and button */}
+            <motion.div
+              animate={{ y: [0, 3, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+              className="flex flex-col items-center"
+            >
+              <ChevronDown className="w-3 h-3 text-white/25" />
+            </motion.div>
+
             {/* Add to cart — prominent CTA */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <AnimatePresence>
                 {qty > 0 && (
                   <motion.div
